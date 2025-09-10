@@ -11,7 +11,20 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
-        // TODO: __global__
+        
+        __global__ void naiveScan(int n, int* odata, const int* idata, int offset) {
+            int index = threadIdx.x + (blockIdx.x * blockDim.x);
+
+            // Check if idx is out of bounds. If yes, return.
+            if (index >= N)
+                return;
+
+            // need to add 0 to beginning somewhere?? 
+
+            if (index >= offset) {
+                odata[n] = idata[n - offset] + idata[n];
+            }
+        }
 
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
@@ -19,6 +32,18 @@ namespace StreamCompaction {
         void scan(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
             // TODO
+            
+            // make 2 buffers a & b
+            // write to one
+            // read from other
+
+
+
+            // d = 1 to ln(n) 
+            // loop through above && create threads for scan
+            
+            // swap buffers
+
             timer().endGpuTimer();
         }
     }
