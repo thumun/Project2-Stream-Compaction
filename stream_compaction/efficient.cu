@@ -22,13 +22,15 @@ namespace StreamCompaction {
 
             // need to do this in parallel hmm
             // for all k = 0 to n – 1 by 2d+1 in parallel
-
-            // bit shift equivalent to power of 2
-            int base = 1 << offset;
             int multiple = 1 << (offset + 1);
 
-            // going left to right now
-            data[index + multiple - 1] += data[index + base - 1];
+            if (index * multiple < n) {
+                // bit shift equivalent to power of 2
+                int base = multiple >> 2;
+
+                // going left to right now
+                data[index + multiple - 1] += data[index + base - 1];
+            }
         }
 
         __global__ void kernDownSweep(int n, int* data, int offset) {
@@ -41,15 +43,17 @@ namespace StreamCompaction {
             
             // need to do this!!
             // for all k = 0 to n – 1 by 2d+1 in parallel
-
-            int base = 1 << offset;
             int multiple = 1 << (offset + 1);
 
-            int leftChild = data[index + base - 1];
-            // setting left as right child's val
-            data[index + base - 1] = data[index + multiple - 1];
-            // adding left child to right
-            data[index + multiple - 1] += leftChild;
+            if (index * multiple < n) {
+                int base = multiple >> 2;
+
+                int leftChild = data[index + base - 1];
+                // setting left as right child's val
+                data[index + base - 1] = data[index + multiple - 1];
+                // adding left child to right
+                data[index + multiple - 1] += leftChild;
+            }
         }
 
         /**
