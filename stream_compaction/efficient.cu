@@ -78,7 +78,7 @@ namespace StreamCompaction {
 
             for (int d = 0; d <= ilog2ceil(n) - 1; d++) {
                 // typical CUDA kernel invocation.
-                kernUpSweep << < fullBlocksPerGrid, blockSize >> > (n, dev_data, d);
+                kernUpSweep <<< fullBlocksPerGrid, blockSize >>> (n, dev_data, d);
                 checkCUDAError("UpSweep failed!");
 
                 // synchronize
@@ -90,13 +90,17 @@ namespace StreamCompaction {
             cudaMemcpy(dev_data + n - 1, zerotest, sizeof(int), cudaMemcpyHostToDevice);
 
             for (int d = 0; d <= ilog2ceil(n) - 1; d++) {
-                kernDownSweep << < fullBlocksPerGrid, blockSize>> > (n, dev_data, d);
+                kernDownSweep <<< fullBlocksPerGrid, blockSize>>> (n, dev_data, d);
                 checkCUDAError("DownSweep failed!");
 
                 cudaDeviceSynchronize();
             }
 
             timer().endGpuTimer();
+        
+            cudaMemcpy(odata, dev_data, sizeof(int) * n, cudaMemcpyDeviceToHost);
+
+            cudaFree(dev_data);
         }
 
         /**
