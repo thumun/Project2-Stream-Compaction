@@ -82,10 +82,13 @@ namespace StreamCompaction {
             }
 
             // put zero in root (last elem of dev_data)
+            int zerotest[1] = { 0 }; // check if this or int?
+            cudaMemcpy(dev_data + n - 1, zerotest, sizeof(int), cudaMemcpyHostToDevice);
 
             for (int d = 0; d <= ilog2ceil(n) - 1; d++) {
                 kernDownSweep << < fullBlocksPerGrid, blockSize>> > (n, dev_data, d);
-            
+                checkCUDAError("DownSweep failed!");
+
                 cudaDeviceSynchronize();
             }
 
