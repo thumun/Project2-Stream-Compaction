@@ -15,45 +15,42 @@ namespace StreamCompaction {
         __global__ void kernUpSweep(int n, int* data, int offset) {
             int index = threadIdx.x + (blockIdx.x * blockDim.x);
 
-            // don't want the last value here
-            if (index >= n) {
+            // d = 1
+            // 4
+            int multiple = 1 << (offset + 1);
+
+            int newIndex = index * multiple;
+
+            if (newIndex > n - 1) {
                 return;
             }
 
-            // need to do this in parallel hmm
-            // for all k = 0 to n – 1 by 2d+1 in parallel
-            int multiple = 1 << (offset + 1);
+            // bit shift equivalent to power of 2
+            int base = multiple >> 1;
 
-            if (index * multiple < n) {
-                // bit shift equivalent to power of 2
-                int base = multiple >> 2;
-
-                // going left to right now
-                data[index + multiple - 1] += data[index + base - 1];
-            }
+            // going left to right now
+            data[newIndex + multiple - 1] += data[newIndex + base - 1];            
         }
 
         __global__ void kernDownSweep(int n, int* data, int offset) {
             int index = threadIdx.x + (blockIdx.x * blockDim.x);
 
-            // don't want the last value here
-            if (index >= n) {
-                return;
-            }
-            
-            // need to do this!!
-            // for all k = 0 to n – 1 by 2d+1 in parallel
             int multiple = 1 << (offset + 1);
 
-            if (index * multiple < n) {
-                int base = multiple >> 2;
+            int newIndex = index * multiple;
 
-                int leftChild = data[index + base - 1];
-                // setting left as right child's val
-                data[index + base - 1] = data[index + multiple - 1];
-                // adding left child to right
-                data[index + multiple - 1] += leftChild;
+            if (newIndex > n - 1) {
+                return;
             }
+
+            // bit shift equivalent to power of 2
+            int base = multiple >> 1;
+
+            int leftChild = data[newIndex + base - 1];
+            // setting left as right child's val
+            data[newIndex + base - 1] = data[newIndex + multiple - 1];
+            // adding left child to right
+            data[newIndex + multiple - 1] += leftChild;
         }
 
         /**
@@ -69,16 +66,20 @@ namespace StreamCompaction {
             // read & write buffer b/c no overlap now
             int* dev_data;
 
+            int padding = 1 << ilog2ceil(n);
+
             // CUDA memory management and error checking.
-            cudaMalloc((void**)&dev_data, n * sizeof(int));
+            cudaMalloc((void**)&dev_data, padding * sizeof(int));
             checkCUDAError("cudaMalloc data failed!");
 
-            // copying idata into buffer
-            cudaMemcpy(dev_data, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+            cudaMemset(dev_data, 0, padding);
 
-            for (int d = 0; d <= ilog2ceil(n) - 1; d++) {
+            // copying idata into buffer
+            cudaMemcpy(dev_data + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+
+            for (int d = 0; d <= ilog2ceil(padding) - 1; d++) {
                 // typical CUDA kernel invocation.
-                kernUpSweep <<< fullBlocksPerGrid, blockSize >>> (n, dev_data, d);
+                kernUpSweep <<< fullBlocksPerGrid, blockSize >>> (padding, dev_data, d);
                 checkCUDAError("UpSweep failed!");
 
                 // synchronize
@@ -87,10 +88,10 @@ namespace StreamCompaction {
 
             // put zero in root (last elem of dev_data)
             int zerotest[1] = { 0 }; // check if this or int?
-            cudaMemcpy(dev_data + n - 1, zerotest, sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_data + padding - 1, zerotest, sizeof(int), cudaMemcpyHostToDevice);
 
-            for (int d = 0; d <= ilog2ceil(n) - 1; d++) {
-                kernDownSweep <<< fullBlocksPerGrid, blockSize>>> (n, dev_data, d);
+            for (int d = ilog2ceil(padding) - 1; d >= 0; d--) {
+                kernDownSweep <<< fullBlocksPerGrid, blockSize>>> (padding, dev_data, d);
                 checkCUDAError("DownSweep failed!");
 
                 cudaDeviceSynchronize();
@@ -98,7 +99,7 @@ namespace StreamCompaction {
 
             timer().endGpuTimer();
         
-            cudaMemcpy(odata, dev_data, sizeof(int) * n, cudaMemcpyDeviceToHost);
+            cudaMemcpy(odata, dev_data + padding - n, sizeof(int) * n, cudaMemcpyDeviceToHost);
 
             cudaFree(dev_data);
         }
@@ -113,10 +114,76 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
+
+            int blockSize = 128;
+            dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+
+            int* dev_indices;
+            int* dev_bools;
+            int* dev_out;
+            int* dev_in;
+
+            int padding = 1 << ilog2ceil(n);
+
+            // CUDA memory management and error checking.
+            cudaMalloc((void**)&dev_indices, padding * sizeof(int));
+            checkCUDAError("cudaMalloc indices failed!");
+            
+            cudaMalloc((void**)&dev_bools, padding * sizeof(int));
+            checkCUDAError("cudaMalloc bools failed!");
+
+            cudaMalloc((void**)&dev_in, padding * sizeof(int));
+            checkCUDAError("cudaMalloc in failed!");
+
+            cudaMalloc((void**)&dev_out, padding * sizeof(int));
+            checkCUDAError("cudaMalloc out failed!");
+
+            cudaMemcpy(dev_in + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+
             timer().startGpuTimer();
             // TODO
+            Common::kernMapToBoolean << < fullBlocksPerGrid, blockSize >> > (n, dev_bools, dev_in);
+            checkCUDAError("MapToBool failed!");
+
+            // need to do scan on temp array
+            cudaMemcpy(dev_indices, dev_bools, sizeof(int) * padding, cudaMemcpyDeviceToDevice);
+
+            for (int d = 0; d <= ilog2ceil(padding) - 1; d++) {
+                // typical CUDA kernel invocation.
+                kernUpSweep << < fullBlocksPerGrid, blockSize >> > (padding, dev_indices, d);
+                checkCUDAError("UpSweep failed!");
+
+                // synchronize
+                cudaDeviceSynchronize();
+            }
+
+            // put zero in root (last elem of dev_data)
+            int zerotest[1] = { 0 }; // check if this or int?
+            cudaMemcpy(dev_indices + padding - 1, zerotest, sizeof(int), cudaMemcpyHostToDevice);
+
+            for (int d = ilog2ceil(padding) - 1; d >= 0; d--) {
+                kernDownSweep << < fullBlocksPerGrid, blockSize >> > (padding, dev_indices, d);
+                checkCUDAError("DownSweep failed!");
+
+                cudaDeviceSynchronize();
+            }
+
+            Common::kernScatter << < fullBlocksPerGrid, blockSize >> > (n, dev_out,
+                dev_in, dev_bools, dev_indices);
+            
             timer().endGpuTimer();
-            return -1;
+            // size is in last elem of indices
+            int* size;
+
+            cudaMemcpy(size, dev_indices + padding - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(odata, dev_out, sizeof(int) * n, cudaMemcpyDeviceToHost);
+
+            cudaFree(dev_in);
+            cudaFree(dev_bools);
+            cudaFree(dev_indices);
+            cudaFree(dev_out);
+
+            return size;
         }
     }
 }

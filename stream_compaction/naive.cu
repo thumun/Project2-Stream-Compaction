@@ -60,21 +60,25 @@ namespace StreamCompaction {
             // write buffer
             int* dev_dataB; 
 
+            int padding = 1 << ilog2ceil(n);
+
             // CUDA memory management and error checking.
-            cudaMalloc((void**)&dev_dataA, n * sizeof(int));
+            cudaMalloc((void**)&dev_dataA, padding * sizeof(int));
             checkCUDAError("cudaMalloc dataA failed!");
 
-            cudaMalloc((void**)&dev_dataB, n * sizeof(int));
+            cudaMalloc((void**)&dev_dataB, padding * sizeof(int));
             checkCUDAError("cudaMalloc dataB failed!");
 
+            cudaMemset(dev_dataA, 0, padding);
+
             // copying idata into buffer
-            cudaMemcpy(dev_dataA, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_dataA + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
             
             timer().startGpuTimer();
 
-            for (int d = 1; d <= ilog2ceil(n); d++) {
+            for (int d = 1; d <= ilog2ceil(padding); d++) {
                 // typical CUDA kernel invocation.
-                kernNaiveScan <<< fullBlocksPerGrid, blockSize >>> (n, dev_dataB, dev_dataA, d);
+                kernNaiveScan <<< fullBlocksPerGrid, blockSize >>> (padding, dev_dataB, dev_dataA, d);
                 checkCUDAError("NaiveScan failed!");
 
                 // synchronize
@@ -88,13 +92,13 @@ namespace StreamCompaction {
             
             // exclusive process b/c above is inclusive
             // shift array to right by 1
-            kernShiftArray << < fullBlocksPerGrid, blockSize >> > (n, dev_dataB, dev_dataA);
+            kernShiftArray << < fullBlocksPerGrid, blockSize >> > (padding, dev_dataB, dev_dataA);
             checkCUDAError("ShiftArray failed!");
 
             timer().endGpuTimer();
 
             // putting data into odata
-            cudaMemcpy(odata, dev_dataB, sizeof(int) * n, cudaMemcpyDeviceToHost);
+            cudaMemcpy(odata, dev_dataB + padding - n, sizeof(int) * n, cudaMemcpyDeviceToHost);
 
             // setting the first elem to identity
             // doing here to prevent branch (does this matter?)
