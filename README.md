@@ -52,9 +52,9 @@ The data in table format for an array length that is not a power of two.
 | 512  | 0.319488  | 1.39155  |
 | 1024  | 1.38957 | 1.29101  |
 
-**Naive**: This method
+**Naive**: The optimal block size that results in a lower runtime seems to be 128 or 256 where the run time was approximately 0.97 and 1.14 respectively (in the pow 2 case). After 256, there is a noticable increase in runtime for a block size of 512 so larger block sizes would not be ideal. 
 
-**Work-Efficient**: This method  
+**Work-Efficient**: The optimal block size is 256 or 512 due to lower runtimes of around 0.33 for both (in the pow 2 case). There is an interesting spike in runtime for a block size of 128 (in the non pow 2 case).
 
 #### Comparison of methods
 These charts compare the GPU and CPU methods for Scan by seeing how the runtime changes depending on different array sizes. The first chart shows how the runtime looks for an array size where the length are powers of two while the second shows how it looks for array lengths that are not powers of two. The block size is fixed as 128 in both of these charts.
@@ -75,19 +75,19 @@ The data in table format for a array lengths of powers of two.
 The data in table format for a array lengths that are not powers of two.
 | Array Size  | Naive Scan Runtime | Work Efficient Scan Runtime | Thrust Runtime | CPU Runtime |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| 64  | 0.233216 | 1.03914  | 0.125056  | 0.0005  |
-| 128  | 0.49152  | 1.16326  | 0.155648 | 0.001  |
-| 256  | 0.815104  | 0.523264  | 0.101632  | 0.0013  |
-| 512  | 0.330752  | 1.02621  | 0.241664  | 0.0028  |
-| 1024  | 0.872448 | 0.635904  | 0.25088  | 0.0105  |
+| 61  | 0.233216 | 1.03914  | 0.125056  | 0.0005  |
+| 125  | 0.49152  | 1.16326  | 0.155648 | 0.001  |
+| 253  | 0.815104  | 0.523264  | 0.101632  | 0.0013  |
+| 509  | 0.330752  | 1.02621  | 0.241664  | 0.0028  |
+| 1021  | 0.872448 | 0.635904  | 0.25088  | 0.0105  |
 
-**CPU**: /
+**CPU**: This method has a considerably better runtime than the other methods and it seems like for array sizes greater that and equal to 256, there is an increase in runtime. However, even with this increase it is much better than the GPU versions. This is most likely due to the GPU methods not being optimized (too many threads). 
 
-**Naive**: This method
+**Naive**: This method has a more consistent runtime as the array size increases than the other GPU methods. Except, there is a slight spike for an array size of 256 which is more prominent at 253. The naive method seems to out perform the work efficient method vastly for smaller arrays, and they are similar for larger powers of two. (FINISH THIS STATEMENT!!)
 
-**Work-Efficient**: This method  
+**Work-Efficient**: This method is not ideal for for smaller array sizes which is rather interesting and this is apparent in both the power of 2 and non power of 2 length arrays. The runtime is best for the array size of 256, or 2^8. There is also an interesting runtime spike for an array size of 509 which is not as dramatic for an array size of 512. (FINISH!!)
 
-**Thrust**: /
+**Thrust**: For this method, there is a similar set of runtime values (ANALYZE & CHECK WITH NSIGHT) 
 
 #### Phenomena Thoughts
 do this!!!
