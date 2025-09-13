@@ -30,6 +30,7 @@ This project focused on the implementation of two algorithms: scan (prefix sum) 
 #### Optimal block size for each method
 These charts show data where different blocksizes were tested for the Naive and Work Efficient scan methods to see how the runtime changes based on these sizes. The first chart shows how the runtime looks for an array size where the length is a power of two while the second shows how it looks for an array length that is not a power of two.
 
+![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_powtwo.png)
 
 The data in table format for an array length that has a power of two.
 | Block Size  | Naive Scan Runtime | Work Efficient Scan Runtime |
