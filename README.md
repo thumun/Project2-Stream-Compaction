@@ -28,10 +28,25 @@ This project focused on the implementation of two algorithms: scan (prefix sum) 
 
 ### Analysis
 #### Optimal block size for each method
+These charts show data where different blocksizes were tested for the Naive and Work Efficient scan methods to see how the runtime changes based on these sizes. The first chart shows how the runtime looks for an array size where the length is a power of two while the second shows how it looks for an array length that is not a power of two.
+
+![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_powtwo.png)
+
+![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_nonpowtwo.png)
+
+**Naive**: This method
+
+**Work-Efficient**: This method  
 
 #### Comparison of methods
+These charts compare the GPU and CPU methods for Scan by seeing how the runtime changes depending on different array sizes. The first chart shows how the runtime looks for an array size where the length are powers of two while the second shows how it looks for array lengths that are not powers of two. The block size is fixed as 128 in both of these charts.
+
+![arraysizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/arraysize_runtime_powtwo.png)
+
+![arraysizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/arraysize_runtime_nonpowtwo.png)
 
 #### Phenomena Thoughts
+do this!!!
 
 #### Output of test program (for block size of 128)
 ```
