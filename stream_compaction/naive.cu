@@ -50,17 +50,16 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            // TODO
-            
+            // adding padding for non power of 2 len array
+            int padding = 1 << ilog2ceil(n);
+
             int blockSize = 128;
-            dim3 fullBlocksPerGrid((n + blockSize - 1)/blockSize);
+            dim3 fullBlocksPerGrid((padding + blockSize - 1)/blockSize);
 
             // read buffer
             int* dev_dataA;
             // write buffer
             int* dev_dataB; 
-
-            int padding = 1 << ilog2ceil(n);
 
             // CUDA memory management and error checking.
             cudaMalloc((void**)&dev_dataA, padding * sizeof(int));
@@ -69,6 +68,7 @@ namespace StreamCompaction {
             cudaMalloc((void**)&dev_dataB, padding * sizeof(int));
             checkCUDAError("cudaMalloc dataB failed!");
 
+            // setting array to 0
             cudaMemset(dev_dataA, 0, padding * sizeof(int));
 
             // copying idata into buffer
