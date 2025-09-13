@@ -32,7 +32,25 @@ These charts show data where different blocksizes were tested for the Naive and 
 
 ![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_powtwo.png)
 
+The data in table format for an array length that has a power of two.
+| Block Size  | Naive Scan Runtime | Work Efficient Scan Runtime |
+| ------------- | ------------- | ------------- |
+| 32  | 1.6097 | 2.16474  |
+| 128  | 1.152  | 0.968704  |
+| 256  | 1.60765  | 1.13869  |
+| 512  | 0.738144  | 2.40333  |
+| 1024  | 1.32598 | 1.97539  |
+
 ![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_nonpowtwo.png)
+
+The data in table format for an array length that is not a power of two.
+| Block Size  | Naive Scan Runtime | Work Efficient Scan Runtime |
+| ------------- | ------------- | ------------- |
+| 32  | 0.359136 | 0.688032  |
+| 128  | 0.815104  | 0.523264  |
+| 256  | 0.330656  | 0.848896  |
+| 512  | 0.319488  | 1.39155  |
+| 1024  | 1.38957 | 1.29101  |
 
 **Naive**: This method
 
@@ -43,7 +61,25 @@ These charts compare the GPU and CPU methods for Scan by seeing how the runtime 
 
 ![arraysizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/arraysize_runtime_powtwo.png)
 
+The data in table format for a array lengths of powers of two.
+| Array Size  | Naive Scan Runtime | Work Efficient Scan Runtime | Thrust Runtime | CPU Runtime |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| 64  | 0.761888 | 2.18326  | 0.604064 | 0.0008  |
+| 128  | 1.06896  | 2.15757  | 0.615584  | 0.001  |
+| 256  | 1.152  | 0.968704  | 0.456704  | 0.002 |
+| 512  | 0.908288  | 1.17965  | 0.268288  | 0.0038  |
+| 1024  | 1.03731 | 1.01786  | 0.67376  | 0.007  |
+
 ![arraysizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/arraysize_runtime_nonpowtwo.png)
+
+The data in table format for a array lengths that are not powers of two.
+| Array Size  | Naive Scan Runtime | Work Efficient Scan Runtime | Thrust Runtime | CPU Runtime |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| 64  | 0.233216 | 1.03914  | 0.125056  | 0.0005  |
+| 128  | 0.49152  | 1.16326  | 0.155648 | 0.001  |
+| 256  | 0.815104  | 0.523264  | 0.101632  | 0.0013  |
+| 512  | 0.330752  | 1.02621  | 0.241664  | 0.0028  |
+| 1024  | 0.872448 | 0.635904  | 0.25088  | 0.0105  |
 
 **CPU**: /
 
