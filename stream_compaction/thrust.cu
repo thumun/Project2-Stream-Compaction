@@ -18,7 +18,7 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            thrust::host_vector<int> h_in(n, &idata);
+            thrust::host_vector<int> h_in(idata, idata + n);
             thrust::host_vector<int> h_out(n);
             thrust::device_vector<int> dev_thrust_input = h_in;
             thrust::device_vector<int> dev_thrust_output = h_out;
