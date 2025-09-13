@@ -13,7 +13,7 @@ CUDA Stream Compaction
 This project focused on the implementation of two algorithms: scan (prefix sum) and stream compaction. In this implementation of the scan algorithm, an exclusive prefix sum is being computed. This involves prepending an identity (in our case, 0) to the front of the array while the final element contains the sum. The stream compaction algorithm utilizes the scan algorithm in its process but the main idea is to remove elements that we are not using from our data: this takes the form of first mapping the data to 0's and 1's and then discarding those marked as 0. 
 
 #### Scan Methods
-CPU: This is the baseline method that is a point of comparison to the GPU methods. As it is on the CPU, loops are being utilized.
+**CPU**: This is the baseline method that is a point of comparison to the GPU methods. As it is on the CPU, loops are being utilized.
 
 **Naive**: This method creates threads for pairs of values in the input array and computes the sum for each of the pairs until we have the cumulative sum. This method computes an inclusive sum that needs two arrays (input and output) rather than being an in-place computation in order to prevent reading/writing from the same value for multiple threads. In order to ensure the result is an exclusive prefix sum, the resultant array is shifted to the right by 1 and the identity (in this case, 0) is prepended.
 
