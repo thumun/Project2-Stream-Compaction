@@ -173,7 +173,7 @@ namespace StreamCompaction {
             
             timer().endGpuTimer();
             // size is in last elem of indices
-            int* size;
+            int size[1];
 
             cudaMemcpy(size, dev_indices + padding - 1, sizeof(int), cudaMemcpyDeviceToHost);
             cudaMemcpy(odata, dev_out, sizeof(int) * n, cudaMemcpyDeviceToHost);
@@ -183,7 +183,7 @@ namespace StreamCompaction {
             cudaFree(dev_indices);
             cudaFree(dev_out);
 
-            return size;
+            return size[0];
         }
     }
 }
