@@ -60,19 +60,19 @@ namespace StreamCompaction {
             timer().startGpuTimer();
             // TODO
 
+            int padding = 1 << ilog2ceil(n);
+
             int blockSize = 128;
-            dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+            dim3 fullBlocksPerGrid((padding + blockSize - 1) / blockSize);
 
             // read & write buffer b/c no overlap now
             int* dev_data;
-
-            int padding = 1 << ilog2ceil(n);
 
             // CUDA memory management and error checking.
             cudaMalloc((void**)&dev_data, padding * sizeof(int));
             checkCUDAError("cudaMalloc data failed!");
 
-            cudaMemset(dev_data, 0, padding);
+            cudaMemset(dev_data, 0, padding * sizeof(int));
 
             // copying idata into buffer
             cudaMemcpy(dev_data + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
@@ -115,15 +115,15 @@ namespace StreamCompaction {
          */
         int compact(int n, int *odata, const int *idata) {
 
+            int padding = 1 << ilog2ceil(n);
+
             int blockSize = 128;
-            dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+            dim3 fullBlocksPerGrid((padding + blockSize - 1) / blockSize);
 
             int* dev_indices;
             int* dev_bools;
             int* dev_out;
             int* dev_in;
-
-            int padding = 1 << ilog2ceil(n);
 
             // CUDA memory management and error checking.
             cudaMalloc((void**)&dev_indices, padding * sizeof(int));
@@ -138,11 +138,12 @@ namespace StreamCompaction {
             cudaMalloc((void**)&dev_out, padding * sizeof(int));
             checkCUDAError("cudaMalloc out failed!");
 
+            cudaMemset(dev_in, 0, padding * sizeof(int));
             cudaMemcpy(dev_in + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
             timer().startGpuTimer();
             // TODO
-            Common::kernMapToBoolean << < fullBlocksPerGrid, blockSize >> > (n, dev_bools, dev_in);
+            Common::kernMapToBoolean << < fullBlocksPerGrid, blockSize >> > (padding, dev_bools, dev_in);
             checkCUDAError("MapToBool failed!");
 
             // need to do scan on temp array
@@ -174,16 +175,20 @@ namespace StreamCompaction {
             timer().endGpuTimer();
             // size is in last elem of indices
             int size[1];
+            int sizeTest[1];
 
             cudaMemcpy(size, dev_indices + padding - 1, sizeof(int), cudaMemcpyDeviceToHost);
-            cudaMemcpy(odata, dev_out, sizeof(int) * n, cudaMemcpyDeviceToHost);
+            cudaMemcpy(sizeTest, dev_bools + padding - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(odata, dev_out + padding - n, sizeof(int) * n, cudaMemcpyDeviceToHost);
 
             cudaFree(dev_in);
             cudaFree(dev_bools);
             cudaFree(dev_indices);
             cudaFree(dev_out);
 
-            return size[0];
+            int returnval = size[0] + sizeTest[0];
+
+            return returnval;
         }
     }
 }
