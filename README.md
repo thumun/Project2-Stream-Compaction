@@ -30,7 +30,7 @@ This project focused on the implementation of two algorithms: scan (prefix sum) 
 #### Optimal block size for each method
 These charts show data where different blocksizes were tested for the Naive and Work Efficient scan methods to see how the runtime changes based on these sizes. The first chart shows how the runtime looks for an array size where the length is a power of two while the second shows how it looks for an array length that is not a power of two.
 
-![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_powtwo.png)
+<img width="2188" height="1335" alt="blocksize_runtime_powtwo" src="https://github.com/user-attachments/assets/f2297194-6c64-472b-9b90-42206ffa9817" />
 
 The data in table format for an array length that has a power of two.
 | Block Size  | Naive Scan Runtime | Work Efficient Scan Runtime |
@@ -41,6 +41,7 @@ The data in table format for an array length that has a power of two.
 | 512  | 0.738144  | 2.40333  |
 | 1024  | 1.32598 | 1.97539  |
 
+<img width="2188" height="1335" alt="blocksize_runtime_nonpowtwo" src="https://github.com/user-attachments/assets/d553d845-7b8c-4c24-b85e-066c9d98bd37" />
 
 The data in table format for an array length that is not a power of two.
 | Block Size  | Naive Scan Runtime | Work Efficient Scan Runtime |
@@ -58,6 +59,7 @@ The data in table format for an array length that is not a power of two.
 #### Comparison of methods
 These charts compare the GPU and CPU methods for Scan by seeing how the runtime changes depending on different array sizes. The first chart shows how the runtime looks for an array size where the length are powers of two while the second shows how it looks for array lengths that are not powers of two. The block size is fixed as 128 in both of these charts.
 
+<img width="2189" height="1335" alt="arraysize_runtime_powtwo" src="https://github.com/user-attachments/assets/43d2e311-037b-47ad-bc86-c05f6119ed72" />
 
 The data in table format for a array lengths of powers of two.
 | Array Size  | Naive Scan Runtime | Work Efficient Scan Runtime | Thrust Runtime | CPU Runtime |
@@ -68,6 +70,7 @@ The data in table format for a array lengths of powers of two.
 | 512  | 0.908288  | 1.17965  | 0.268288  | 0.0038  |
 | 1024  | 1.03731 | 1.01786  | 0.67376  | 0.007  |
 
+<img width="2188" height="1335" alt="arraysize_runtime_nonpowtwo" src="https://github.com/user-attachments/assets/5f12ff9b-8d23-4753-9f28-9a9199e02011" />
 
 The data in table format for a array lengths that are not powers of two.
 | Array Size  | Naive Scan Runtime | Work Efficient Scan Runtime | Thrust Runtime | CPU Runtime |
