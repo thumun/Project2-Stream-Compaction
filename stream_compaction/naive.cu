@@ -72,7 +72,7 @@ namespace StreamCompaction {
             cudaMemset(dev_dataA, 0, padding * sizeof(int));
 
             // copying idata into buffer
-            cudaMemcpy(dev_dataA + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_dataA, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
             
             timer().startGpuTimer();
 
@@ -98,7 +98,7 @@ namespace StreamCompaction {
             timer().endGpuTimer();
 
             // putting data into odata
-            cudaMemcpy(odata, dev_dataB + padding - n, sizeof(int) * n, cudaMemcpyDeviceToHost);
+            cudaMemcpy(odata, dev_dataB, sizeof(int) * n, cudaMemcpyDeviceToHost);
 
             // setting the first elem to identity
             // doing here to prevent branch (does this matter?)

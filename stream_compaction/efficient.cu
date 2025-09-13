@@ -75,7 +75,7 @@ namespace StreamCompaction {
             cudaMemset(dev_data, 0, padding * sizeof(int));
 
             // copying idata into buffer
-            cudaMemcpy(dev_data + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_data, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
             for (int d = 0; d <= ilog2ceil(padding) - 1; d++) {
                 // typical CUDA kernel invocation.
@@ -99,7 +99,7 @@ namespace StreamCompaction {
 
             timer().endGpuTimer();
         
-            cudaMemcpy(odata, dev_data + padding - n, sizeof(int) * n, cudaMemcpyDeviceToHost);
+            cudaMemcpy(odata, dev_data, sizeof(int) * n, cudaMemcpyDeviceToHost);
 
             cudaFree(dev_data);
         }
@@ -139,7 +139,7 @@ namespace StreamCompaction {
             checkCUDAError("cudaMalloc out failed!");
 
             cudaMemset(dev_in, 0, padding * sizeof(int));
-            cudaMemcpy(dev_in + padding - n, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_in, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
             timer().startGpuTimer();
             // TODO
@@ -177,9 +177,9 @@ namespace StreamCompaction {
             int size[1];
             int sizeTest[1];
 
-            cudaMemcpy(size, dev_indices + padding - 1, sizeof(int), cudaMemcpyDeviceToHost);
-            cudaMemcpy(sizeTest, dev_bools + padding - 1, sizeof(int), cudaMemcpyDeviceToHost);
-            cudaMemcpy(odata, dev_out + padding - n, sizeof(int) * n, cudaMemcpyDeviceToHost);
+            cudaMemcpy(size, dev_indices + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(sizeTest, dev_bools + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(odata, dev_out, sizeof(int) * n, cudaMemcpyDeviceToHost);
 
             cudaFree(dev_in);
             cudaFree(dev_bools);
