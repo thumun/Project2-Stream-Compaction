@@ -45,6 +45,14 @@ These charts compare the GPU and CPU methods for Scan by seeing how the runtime 
 
 ![arraysizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/arraysize_runtime_nonpowtwo.png)
 
+**CPU**: /
+
+**Naive**: This method
+
+**Work-Efficient**: This method  
+
+**Thrust**: /
+
 #### Phenomena Thoughts
 do this!!!
 
