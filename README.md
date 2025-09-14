@@ -91,7 +91,9 @@ The data in table format for a array lengths that are not powers of two.
 
 This is not in the chart but in my initial version of this method I used two host vectors h_in and h_out and then created the device_vectors using those vectors in order to mimic the syntax of the example code in the Thrust documentation. However, this makes the runtime significantly higher (almost 50 ms!). I realized that I can make the device_vectors directly with my input parameters and the runtime became more reasonable. 
 
-(insert picture!!) 
+Focus on Thrust Method  |  Thrust vs Other Methods
+:-------------------------:|:-------------------------:
+![thrustfocus](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/thrust_mem.png) |  ![thrustandother](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/thrust_vs_other.png)
 
 When looking at the Thrust method using NSight Systems, it seems that under the hood the scan takes about 44.4% of the time, the set up/initialization is 22.2%, and there is 33.3% from potentially overhead. There is also 34.2% for memory transfers which is interesting: about 41% of this is to go from host to device and the remaining is to copy back to the host. This is quite high when comparing to the memory transfers of the other methods! 
 
