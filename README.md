@@ -87,7 +87,13 @@ The data in table format for a array lengths that are not powers of two.
 
 **Work-Efficient**: This method is not ideal for for smaller array sizes which is rather interesting and this is apparent in both the power of 2 and non power of 2 length arrays. The runtime is best for the array size of 256, or 2^8. There is also an interesting runtime spike for an array size of 509 which is not as dramatic for an array size of 512. It is also interesting to note that work-efficient is generally out performed by naive for non power of two length arrays.
 
-**Thrust**: For this method, there is a similar set of runtime values (ANALYZE & CHECK WITH NSIGHT) 
+**Thrust**: This method has the best runtime compared to the other methods for all array lengths. There is a slight increase in runtime as the array size increases and for the non-power of 2 case, the runtime is almost half of the power of 2 case. 
+
+This is not in the chart but in my initial version of this method I used two host vectors h_in and h_out and then created the device_vectors using those vectors in order to mimic the syntax of the example code in the Thrust documentation. However, this makes the runtime significantly higher (almost 50 ms!). I realized that I can make the device_vectors directly with my input parameters and the runtime became more reasonable. 
+
+(insert picture!!) 
+
+When looking at the Thrust method using NSight Systems, it seems that under the hood the scan takes about 44.4% of the time, the set up/initialization is 22.2%, and there is 33.3% from potentially overhead. There is also 34.2% for memory transfers which is interesting: about 41% of this is to go from host to device and the remaining is to copy back to the host. This is quite high when comparing to the memory transfers of the other methods! 
 
 #### Phenomena Thoughts
 do this!!!
