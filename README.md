@@ -98,7 +98,14 @@ Focus on Thrust Method  |  Thrust vs Other Methods
 When looking at the Thrust method using NSight Systems, it seems that under the hood the scan takes about 44.4% of the time, the set up/initialization is 22.2%, and there is 33.3% from potentially overhead. There is also 34.2% for memory transfers which is interesting: about 41% of this is to go from host to device and the remaining is to copy back to the host. This is quite high when comparing to the memory transfers of the other methods! 
 
 #### Phenomena Thoughts
-do this!!!
+
+**CPU**: This method ..
+
+**Naive**: This method ..
+
+**Work-Efficient**: This method ;;
+
+**Thrust**: This method ..
 
 #### Output of test program (for block size of 128)
 ```
