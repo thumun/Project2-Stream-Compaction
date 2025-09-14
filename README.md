@@ -30,28 +30,70 @@ This project focused on the implementation of two algorithms: scan (prefix sum) 
 #### Optimal block size for each method
 These charts show data where different blocksizes were tested for the Naive and Work Efficient scan methods to see how the runtime changes based on these sizes. The first chart shows how the runtime looks for an array size where the length is a power of two while the second shows how it looks for an array length that is not a power of two.
 
-![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_powtwo.png)
+<img width="2188" height="1335" alt="blocksize_runtime_powtwo" src="https://github.com/user-attachments/assets/f2297194-6c64-472b-9b90-42206ffa9817" />
 
-![blocksizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/blocksize_runtime_nonpowtwo.png)
+The data in table format for an array length that has a power of two.
+| Block Size  | Naive Scan Runtime | Work Efficient Scan Runtime |
+| ------------- | ------------- | ------------- |
+| 32  | 1.6097 | 2.16474  |
+| 128  | 1.152  | 0.968704  |
+| 256  | 1.60765  | 1.13869  |
+| 512  | 0.738144  | 2.40333  |
+| 1024  | 1.32598 | 1.97539  |
 
-**Naive**: This method
+<img width="2188" height="1335" alt="blocksize_runtime_nonpowtwo" src="https://github.com/user-attachments/assets/d553d845-7b8c-4c24-b85e-066c9d98bd37" />
 
-**Work-Efficient**: This method  
+The data in table format for an array length that is not a power of two.
+| Block Size  | Naive Scan Runtime | Work Efficient Scan Runtime |
+| ------------- | ------------- | ------------- |
+| 32  | 0.359136 | 0.688032  |
+| 128  | 0.815104  | 0.523264  |
+| 256  | 0.330656  | 0.848896  |
+| 512  | 0.319488  | 1.39155  |
+| 1024  | 1.38957 | 1.29101  |
+
+**Naive**: The optimal block size that results in a lower runtime seems to be 128 or 256 where the run time was approximately 0.97 and 1.14 respectively (in the pow 2 case). After 256, there is a noticable increase in runtime for a block size of 512 so larger block sizes would not be ideal. 
+
+**Work-Efficient**: The optimal block size is 256 or 512 due to lower runtimes of around 0.33 for both (in the pow 2 case). There is an interesting spike in runtime for a block size of 128 (in the non pow 2 case).
 
 #### Comparison of methods
 These charts compare the GPU and CPU methods for Scan by seeing how the runtime changes depending on different array sizes. The first chart shows how the runtime looks for an array size where the length are powers of two while the second shows how it looks for array lengths that are not powers of two. The block size is fixed as 128 in both of these charts.
 
-![arraysizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/arraysize_runtime_powtwo.png)
+<img width="2189" height="1335" alt="arraysize_runtime_powtwo" src="https://github.com/user-attachments/assets/43d2e311-037b-47ad-bc86-c05f6119ed72" />
 
-![arraysizevsruntime](https://github.com/thumun/Project2-Stream-Compaction/blob/main/img/arraysize_runtime_nonpowtwo.png)
+The data in table format for a array lengths of powers of two.
+| Array Size  | Naive Scan Runtime | Work Efficient Scan Runtime | Thrust Runtime | CPU Runtime |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| 64  | 0.761888 | 2.18326  | 0.604064 | 0.0008  |
+| 128  | 1.06896  | 2.15757  | 0.615584  | 0.001  |
+| 256  | 1.152  | 0.968704  | 0.456704  | 0.002 |
+| 512  | 0.908288  | 1.17965  | 0.268288  | 0.0038  |
+| 1024  | 1.03731 | 1.01786  | 0.67376  | 0.007  |
 
-**CPU**: /
+<img width="2188" height="1335" alt="arraysize_runtime_nonpowtwo" src="https://github.com/user-attachments/assets/5f12ff9b-8d23-4753-9f28-9a9199e02011" />
 
-**Naive**: This method
+The data in table format for a array lengths that are not powers of two.
+| Array Size  | Naive Scan Runtime | Work Efficient Scan Runtime | Thrust Runtime | CPU Runtime |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| 61  | 0.233216 | 1.03914  | 0.125056  | 0.0005  |
+| 125  | 0.49152  | 1.16326  | 0.155648 | 0.001  |
+| 253  | 0.815104  | 0.523264  | 0.101632  | 0.0013  |
+| 509  | 0.330752  | 1.02621  | 0.241664  | 0.0028  |
+| 1021  | 0.872448 | 0.635904  | 0.25088  | 0.0105  |
 
-**Work-Efficient**: This method  
+**CPU**: This method has a considerably better runtime than the other methods and it seems like for array sizes greater that and equal to 256, there is an increase in runtime. However, even with this increase it is much better than the GPU versions. This is most likely due to the GPU methods not being optimized (too many threads). 
 
-**Thrust**: /
+**Naive**: This method has a more consistent runtime as the array size increases than the other GPU methods. Except, there is a slight spike for an array size of 256 which is more prominent at 253. The naive method seems to out perform the work efficient method vastly for smaller arrays, and they are similar for larger powers of two.
+
+**Work-Efficient**: This method is not ideal for for smaller array sizes which is rather interesting and this is apparent in both the power of 2 and non power of 2 length arrays. The runtime is best for the array size of 256, or 2^8. There is also an interesting runtime spike for an array size of 509 which is not as dramatic for an array size of 512. It is also interesting to note that work-efficient is generally out performed by naive for non power of two length arrays.
+
+**Thrust**: This method has the best runtime compared to the other methods for all array lengths. There is a slight increase in runtime as the array size increases and for the non-power of 2 case, the runtime is almost half of the power of 2 case. 
+
+This is not in the chart but in my initial version of this method I used two host vectors h_in and h_out and then created the device_vectors using those vectors in order to mimic the syntax of the example code in the Thrust documentation. However, this makes the runtime significantly higher (almost 50 ms!). I realized that I can make the device_vectors directly with my input parameters and the runtime became more reasonable. 
+
+(insert picture!!) 
+
+When looking at the Thrust method using NSight Systems, it seems that under the hood the scan takes about 44.4% of the time, the set up/initialization is 22.2%, and there is 33.3% from potentially overhead. There is also 34.2% for memory transfers which is interesting: about 41% of this is to go from host to device and the remaining is to copy back to the host. This is quite high when comparing to the memory transfers of the other methods! 
 
 #### Phenomena Thoughts
 do this!!!
