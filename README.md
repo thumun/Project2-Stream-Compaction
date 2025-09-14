@@ -99,13 +99,13 @@ When looking at the Thrust method using NSight Systems, it seems that under the 
 
 #### Phenomena Thoughts
 
-**CPU**: This method ..
+**CPU**: This method as seen in the charts above vastly out performs all the other methods which is curious as one may expect that parallelizing would be faster than for loops. I think this is due to how small the array sizes are (relatively speaking). If the array sizes increased to be much bigger-say in the range of hundred thousand or even a million or more-this method is expected to slow down/be worse than the GPU methods due to the sheer cost of looping through such a big array. 
 
-**Naive**: This method ..
+**Naive**: This method surprisingly seems to be better than work efficient on average. This may be due to work efficient not being optimized (which I will dive into below). However, if there is a much larger input array (similar to the above example) I imagine this method to also falter runtime-wise. This is due to the number of computations that take place as we have one thread for each pair of numbers and add them together and repeat the process until the entire array is processed. The number of computations is very much dependent on the amount of data that we have so this method is most likely excelling at the moment due to the arrays being on the smaller side.
 
-**Work-Efficient**: This method ;;
+**Work-Efficient**: It was a bit shocking to see this method underperforming as one may assume that it should be better than naive at least. However, as this is not optimized there is a large amount of overhead due to the number of threads that are being created but simply not being used as I am mapping each thread to the index of the array I want to calculate. If I were to get rid of the unnecessary threads, then this method should perform much better than naive-especially for larger array lengths as there would simply be less number of computations/thread per computation. There may also be some issues with memory as well for this method due to having to go through the entire array initially (even if the threads are being mapped).  
 
-**Thrust**: This method ..
+**Thrust**: It is unsurprising that this method out performs the naive and work efficient ones and I imagine that it would perform well for larger array sizes algorithmically. However, there is a large amount of memory being consumed compared to the other methods due to the cost of going from host to device and vice versa. Due to this, I think that larger array sizes but lead longer runtime due to the amount of memory required. 
 
 #### Output of test program (for block size of 128)
 ```
