@@ -107,7 +107,7 @@ When looking at the Thrust method using NSight Systems, it seems that under the 
 
 **Thrust**: It is unsurprising that this method out performs the naive and work efficient ones and I imagine that it would perform well for larger array sizes algorithmically. However, there is a large amount of memory being consumed compared to the other methods due to the cost of going from host to device and vice versa. Due to this, I think that larger array sizes but lead longer runtime due to the amount of memory required. 
 
-#### Output of test program (for block size of 256)
+#### Output of test program (for block size of 128)
 ```
 ****************
 ** SCAN TESTS **
